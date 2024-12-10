@@ -1,0 +1,11 @@
+FROM docker.io/chimeralinux/chimera:latest AS src
+
+ENV PIPX_GLOBAL_HOME=/usr/local
+
+RUN apk add --no-cache python pipx && pipx install --global pyinfra
+
+FROM docker.io/chimeralinux/chimera:latest
+
+COPY --from=src /usr/local /usr/local
+
+RUN apk add --no-cache python
