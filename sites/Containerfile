@@ -1,0 +1,19 @@
+FROM docker.io/debian:stable-slim AS src
+
+RUN apt update \
+ && apt-get install --assume-yes --no-install-recommends ca-certificates curl unzip \
+ && curl -fsSL https://deno.land/install.sh | sh
+
+FROM docker.io/debian:stable-slim
+
+ENV DENO_DIR=/var/run/deno
+ENV DENO_NO_PACKAGE_JSON=ON
+ENV DENO_NO_UPDATE_CHECK=ON
+
+COPY --from=src /root/.deno/bin/deno /usr/local/bin/deno
+
+WORKDIR /src
+
+ENTRYPOINT ["/usr/local/bin/deno"]
+
+CMD ["--help"]
