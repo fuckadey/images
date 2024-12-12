@@ -1,0 +1,42 @@
+FROM docker.io/chimeralinux/chimera:latest AS src
+
+ARG ERLANG_VERSION
+ARG LFE_VERSION
+
+WORKDIR /src
+
+ENV PREFIX=/usr/local
+ENV LANG=C
+ENV CC=clang
+ENV CXX=clang++
+ENV LD=mold
+
+RUN apk add --no-cache bsdtar clang git gmake gsed mold ncurses-devel openssl-devel perl unixodbc-devel wget \
+ && wget -O ${PREFIX}/bin/rebar3 https://s3.amazonaws.com/rebar3/rebar3 \
+ && ln -s ${PREFIX}/bin/rebar3 ${PREFIX}/bin/rebar \
+ && chmod +x /usr/local/bin/rebar3 \
+ && wget -O otp.tar.gz https://github.com/erlang/otp/releases/download/OTP-${ERLANG_VERSION}/otp_src_${ERLANG_VERSION}.tar.gz \
+ && wget -O lfe.tar.gz https://github.com/lfe/lfe/archive/refs/tags/v${LFE_VERSION}.tar.gz \
+ && mkdir -p /src/otp && tar -C /src/otp --strip-components 1 -xf otp.tar.gz \
+ && mkdir -p /src/lfe && tar -C /src/lfe --strip-components 1 -xf lfe.tar.gz \
+ && cd /src/otp && ./configure --prefix=${PREFIX} \
+                               --enable-jit \
+                               --enable-pie \
+                               --enable-kernel-poll \
+                               --with-termcap \
+                               --without-javac \
+                               --without-wx \
+                               --enable-dynamic-ssl-lib \
+                               --with-ssl \
+                && make \
+                && make install \
+ && cd /src/lfe && make compile \
+                && make install
+
+FROM docker.io/chimeralinux/chimera:latest
+
+COPY --from=src /usr/local /usr/local
+
+RUN apk add --no-cache openssl ncurses unixodbc
+
+ENTRYPOINT ["/usr/local/bin/lfe"]
