@@ -1,19 +1,14 @@
-FROM docker.io/debian:stable-slim AS src
+FROM docker.io/chimeralinux/chimera:latest
 
-RUN apt update \
- && apt-get install --assume-yes --no-install-recommends ca-certificates curl unzip \
- && curl -fsSL https://deno.land/install.sh | sh
-
-FROM docker.io/debian:stable-slim
-
-ENV DENO_DIR=/var/run/deno
-ENV DENO_NO_PACKAGE_JSON=ON
-ENV DENO_NO_UPDATE_CHECK=ON
-
-COPY --from=src /root/.deno/bin/deno /usr/local/bin/deno
+RUN apk add --no-cache nodejs && corepack enable && yarn config set --home enableTelemetry 0
 
 WORKDIR /src
 
-ENTRYPOINT ["/usr/local/bin/deno"]
+ENV YARN_ENABLE_GLOBAL_CACHE=1
+ENV YARN_GLOBAL_FOLDER=/var/run/yarn
+ENV YARN_CACHE_MIGRATION_MODE="match-spec"
+ENV YARN_NODE_LINKER="node-modules"
+
+ENTRYPOINT ["node"]
 
 CMD ["--help"]
