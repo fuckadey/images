@@ -9,3 +9,7 @@ FROM docker.io/chimeralinux/chimera:latest
 COPY --from=src /usr/local /usr/local
 
 RUN apk add --no-cache clang cmake libcxx libcxx-devel libcxxabi libcxxabi-devel libunwind libunwind-devel mold musl musl-devel ninja python
+
+WORKDIR /src
+
+ENTRYPOINT ["/bin/sh"]
