@@ -39,4 +39,6 @@ COPY --from=src /usr/local /usr/local
 
 RUN apk add --no-cache openssl ncurses unixodbc
 
+ENV REBAR_CACHE_DIR=/var/cache/rebar
+
 ENTRYPOINT ["/usr/local/bin/lfe"]

@@ -5,7 +5,7 @@ RUN apk add --no-cache nodejs && corepack enable && yarn config set --home enabl
 WORKDIR /src
 
 ENV YARN_ENABLE_GLOBAL_CACHE=1
-ENV YARN_GLOBAL_FOLDER=/var/run/yarn
+ENV YARN_GLOBAL_FOLDER=/var/cache/yarn
 ENV YARN_CACHE_MIGRATION_MODE="match-spec"
 ENV YARN_NODE_LINKER="node-modules"
 
